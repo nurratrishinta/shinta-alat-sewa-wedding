@@ -224,7 +224,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </span>
 
                 <a class="text-primary fw-bold small text-decoration-none"
-                    href="login.php">
+                    href="../../actions/auth/login.php">
 
                     Login di sini
 

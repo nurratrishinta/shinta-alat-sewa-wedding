@@ -93,7 +93,7 @@ mysqli_stmt_bind_param($stmt_insert, "ssss", $nama, $email, $passwordSave, $role
 if (mysqli_stmt_execute($stmt_insert)) {
     // Berhasil
     $_SESSION['register_success'] = "Registrasi berhasil, silakan login";
-    header('Location: ../../pages/auth/login.php');
+    header('Location: ../../actions/auth/login.php');
     exit;
 } else {
     // Gagal eksekusi

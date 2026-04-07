@@ -33,27 +33,28 @@ ORDER BY p.id_pinjam DESC
 ";
 
 $result = mysqli_query($connect, $query);
-
-if (!$result) {
-    die("Query Error: " . mysqli_error($connect));
-}
 ?>
 
 <div class="container-fluid py-4">
     <div class="card shadow-sm">
-        <div class="card-header bg-white py-3">
-            <h5 class="mb-0 fw-bold text-primary">Persetujuan & Pembayaran Peminjaman</h5>
+
+        <div class="card-header bg-white">
+            <h5 class="fw-bold text-primary">
+                <i class="fas fa-handshake"></i> Persetujuan & Pembayaran Peminjaman
+            </h5>
         </div>
 
         <div class="card-body">
+
             <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle">
+                <table class="table table-bordered table-hover align-middle">
+
                     <thead class="table-light text-center">
                         <tr>
                             <th>No</th>
                             <th>Peminjam</th>
                             <th>Alat & Jumlah</th>
-                            <th>Tanggal Pinjam</th>
+                            <th>Tanggal</th>
                             <th>Total Bayar</th>
                             <th>Metode</th>
                             <th>Status Bayar</th>
@@ -61,106 +62,163 @@ if (!$result) {
                             <th width="200">Aksi</th>
                         </tr>
                     </thead>
+
                     <tbody>
+
                         <?php
                         $no = 1;
                         while ($row = mysqli_fetch_object($result)):
                         ?>
+
                             <tr>
+
                                 <td class="text-center"><?= $no++ ?></td>
+
                                 <td>
-                                    <strong><?= $row->nama_user ?></strong><br>
+                                    <b><?= $row->nama_user ?></b><br>
                                     <small class="text-muted"><?= $row->alamat_peminjam ?></small>
                                 </td>
+
                                 <td>
-                                    <span class="badge badge-dot border border-secondary text-dark">
-                                        <?= $row->nama_alat ?> (<?= $row->jumlah_pinjam ?> pcs)
-                                    </span>
+                                    <?= $row->nama_alat ?>
+                                    <span class="badge bg-primary"><?= $row->jumlah_pinjam ?> pcs</span>
                                 </td>
-                                <td class="text-center"><?= date('d M Y', strtotime($row->tgl_pinjam)) ?></td>
-                                <td class="text-end fw-bold text-dark">
-                                    Rp <?= number_format($row->total_harga, 0, ',', '.') ?>
-                                </td>
+
                                 <td class="text-center">
-                                    <?php if ($row->metode_pembayaran == "Transfer"): ?>
+                                    <?= date('d M Y', strtotime($row->tgl_pinjam)) ?>
+                                </td>
+
+                                <td class="text-end">
+                                    <b>Rp <?= number_format($row->total_harga, 0, ',', '.') ?></b>
+                                </td>
+
+                                <td class="text-center">
+                                    <?php if ($row->metode_pembayaran == "Transfer") { ?>
                                         <span class="badge bg-primary">Transfer</span>
-                                    <?php else: ?>
+                                    <?php } else { ?>
                                         <span class="badge bg-info text-dark">COD</span>
-                                    <?php endif; ?>
+                                    <?php } ?>
                                 </td>
 
                                 <td class="text-center">
                                     <?php
-                                    $s_bayar = $row->status_pembayaran;
-                                    $b_bayar = ($s_bayar == "Sudah Dibayar") ? "success" : (($s_bayar == "Sudah Transfer") ? "primary" : "warning text-dark");
+                                    if ($row->status_pembayaran == "Sudah Dibayar") {
+                                        echo '<span class="badge bg-success">Sudah Dibayar</span>';
+                                    } elseif ($row->status_pembayaran == "Sudah Transfer") {
+                                        echo '<span class="badge bg-primary">Sudah Transfer</span>';
+                                    } else {
+                                        echo '<span class="badge bg-warning text-dark">Belum Dibayar</span>';
+                                    }
                                     ?>
-                                    <span class="badge bg-<?= $b_bayar ?>">
-                                        <?= $s_bayar ?>
-                                    </span>
                                 </td>
 
                                 <td class="text-center">
                                     <?php
                                     switch ($row->status) {
+
                                         case "Menunggu":
-                                            $b_pinjam = "secondary";
+                                            echo '<span class="badge bg-secondary">Menunggu</span>';
                                             break;
+
                                         case "Disetujui":
-                                            $b_pinjam = "success";
+                                            echo '<span class="badge bg-success">Disetujui</span>';
                                             break;
+
                                         case "Ditolak":
-                                            $b_pinjam = "danger";
+                                            echo '<span class="badge bg-danger">Ditolak</span>';
                                             break;
+
                                         case "Dikembalikan":
-                                            $b_pinjam = "info";
+                                            echo '<span class="badge bg-info">Dikembalikan</span>';
                                             break;
-                                        default:
-                                            $b_pinjam = "dark";
                                     }
                                     ?>
-                                    <span class="badge bg-<?= $b_pinjam ?>">
-                                        <?= $row->status ?>
-                                    </span>
                                 </td>
 
                                 <td class="text-center">
-                                    <?php if ($row->status == "Menunggu"): ?>
-                                        <div class="btn-group">
-                                            <a href="../../actions/peminjaman/approve.php?id=<?= $row->id_pinjam ?>&status=Disetujui"
-                                                class="btn btn-success btn-sm" onclick="return confirm('Setujui peminjaman ini?')">
-                                                Setujui
-                                            </a>
-                                            <a href="../../actions/peminjaman/approve.php?id=<?= $row->id_pinjam ?>&status=Ditolak"
-                                                class="btn btn-danger btn-sm" onclick="return confirm('Tolak peminjaman ini?')">
-                                                Tolak
-                                            </a>
-                                        </div>
 
-                                    <?php elseif ($row->status == "Disetujui"): ?>
+                                    <?php if ($row->status == "Menunggu") { ?>
 
-                                        <?php if ($row->status_pembayaran != "Sudah Dibayar"): ?>
-                                            <a href="../../actions/peminjaman/bayar.php?id=<?= $row->id_pinjam ?>&status=bayar"
-                                                class="btn btn-primary btn-sm w-100 shadow-sm">
+                                        <button onclick="approve(<?= $row->id_pinjam ?>)" class="btn btn-success btn-sm">
+                                            Setujui
+                                        </button>
+
+                                        <button onclick="reject(<?= $row->id_pinjam ?>)" class="btn btn-danger btn-sm">
+                                            Tolak
+                                        </button>
+
+                                    <?php } elseif ($row->status == "Disetujui") { ?>
+
+                                        <?php if ($row->status_pembayaran != "Sudah Dibayar") { ?>
+
+                                            <button onclick="bayar(<?= $row->id_pinjam ?>)" class="btn btn-primary btn-sm">
                                                 Konfirmasi Bayar
-                                            </a>
-                                        <?php else: ?>
-                                            <span class="text-success small fw-bold">
-                                                <i class="fas fa-check-circle"></i> Transaksi Selesai
-                                            </span>
-                                        <?php endif; ?>
+                                            </button>
 
-                                    <?php elseif ($row->status == "Ditolak"): ?>
-                                        <span class="text-muted small">Peminjaman Ditolak</span>
-                                    <?php endif; ?>
+                                        <?php } else { ?>
+
+                                            <span class="text-success small">
+                                                Transaksi Selesai
+                                            </span>
+
+                                        <?php } ?>
+
+                                    <?php } ?>
+
                                 </td>
+
                             </tr>
+
                         <?php endwhile; ?>
+
                     </tbody>
                 </table>
             </div>
+
         </div>
     </div>
 </div>
+
+<script>
+    function approve(id) {
+
+        let audio = new Audio('../../../templates-admin/material-dashboard-2/assets/sounds/approve.mp3');
+        audio.play();
+
+        setTimeout(function() {
+
+            window.location.href = '../../actions/peminjaman/approve.php?id=' + id + '&status=Disetujui';
+
+        }, 800);
+
+    }
+
+    function reject(id) {
+
+        let audio = new Audio('../../../templates-admin/material-dashboard-2/assets/sounds/approve.mp3');
+        audio.play();
+
+        setTimeout(function() {
+
+            window.location.href = '../../actions/peminjaman/approve.php?id=' + id + '&status=Ditolak';
+
+        }, 800);
+
+    }
+
+    function bayar(id) {
+
+        let audio = new Audio('../../../templates-admin/material-dashboard-2/assets/sounds/approve.mp3');
+        audio.play();
+
+        setTimeout(function() {
+
+            window.location.href = '../../actions/peminjaman/bayar.php?id=' + id + '&status=bayar';
+
+        }, 800);
+
+    }
+</script>
 
 <?php
 include '../../partials/footer.php';
